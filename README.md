@@ -1,70 +1,114 @@
-# Getting Started with Create React App
+# Event Booking System
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A full-stack web application for browsing and booking events, with admin management and PayPal payment integration.
 
-## Available Scripts
+## Tech Stack
 
-In the project directory, you can run:
+**Backend:** Node.js, Express, MongoDB (Mongoose), JWT, bcryptjs, Nodemailer, Stripe  
+**Frontend:** React 19, React Router, Bootstrap 5, Axios, Stripe (React)
 
-### `npm start`
+## Project Structure
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```
+EventBooking/
+├── backend/
+│   ├── controllers/        # Route handler logic
+│   ├── middleware/         # JWT auth & role checks
+│   ├── models/             # Mongoose schemas (User, Event, Booking)
+│   ├── routes/             # API route definitions
+│   ├── utils/              # Email utility
+│   └── server.js           # Express app entry point
+└── frontend-app/
+    └── src/
+        ├── pages/          # React page components
+        ├── App.js          # Routes and auth guards
+        └── axiosConfig.js  # Axios base config
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Features
 
-### `npm test`
+- **User authentication** — Register/login with JWT tokens (1h expiry), passwords hashed with bcryptjs
+- **Role-based access** — `admin` and `consumer` roles; admin-only routes protected by middleware
+- **Event management** — Admins can create, update, and delete events; all users can browse
+- **Ticket booking** — Users can book tickets; available count tracked on the Event model
+- **PayPal payments** — Sandbox PayPal integration (create order + capture order flow)
+- **Booking history** — Users view their own bookings; admins view all bookings
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## API Endpoints
 
-### `npm run build`
+| Method | Path | Auth | Description |
+|--------|------|------|-------------|
+| POST | `/api/auth/register` | — | Register a new user |
+| POST | `/api/auth/login` | — | Login, returns JWT |
+| GET | `/api/events` | — | List all events |
+| GET | `/api/events/:id` | — | Get a single event |
+| POST | `/api/events` | Admin | Create an event |
+| PUT | `/api/events/:id` | Admin | Update an event |
+| DELETE | `/api/events/:id` | Admin | Delete an event |
+| POST | `/api/bookings` | User | Book an event |
+| GET | `/api/bookings/my` | User | Get current user's bookings |
+| GET | `/api/bookings/admin` | User | Get all bookings (admin use) |
+| POST | `/api/paypal/create-order` | — | Create a PayPal order |
+| POST | `/api/paypal/capture-order/:orderID` | — | Capture a PayPal payment |
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Frontend Pages
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+| Route | Page | Access |
+|-------|------|--------|
+| `/login` | Login | Public |
+| `/register` | Register | Public |
+| `/home` | Event listing | Authenticated |
+| `/book/:eventId` | Book a ticket | Authenticated |
+| `/my-bookings` | User's bookings | Authenticated |
+| `/admin` | Admin dashboard | Authenticated |
+| `/admin/bookings` | All bookings | Authenticated |
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Getting Started
 
-### `npm run eject`
+### Prerequisites
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- Node.js 18+
+- MongoDB instance (local or Atlas)
+- PayPal sandbox credentials
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### Backend Setup
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+cd backend
+npm install
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Create a `.env` file in `backend/`:
 
-## Learn More
+```env
+MONGO_URI=mongodb://localhost:27017/eventbooking
+JWT_SECRET=your_jwt_secret
+PORT=5000
+PAYPAL_CLIENT_ID=your_paypal_client_id
+PAYPAL_CLIENT_SECRET=your_paypal_client_secret
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Start the server:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm run dev   # development (nodemon)
+npm start     # production
+```
 
-### Code Splitting
+### Frontend Setup
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+cd frontend-app
+npm install
+npm start
+```
 
-### Analyzing the Bundle Size
+The app runs on `http://localhost:3000` and proxies API requests to `http://localhost:5000`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Data Models
 
-### Making a Progressive Web App
+**User** — `name`, `email`, `password` (hashed), `role` (`admin` | `consumer`)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+**Event** — `title`, `description`, `date`, `location`, `price`, `ticketsAvailable`, `ticketsSold`, `createdBy` (User ref)
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+**Booking** — `event` (Event ref), `user` (User ref), `ticketsBooked`, `totalAmount`, `transactionId`, `payerEmail`, `paymentStatus` (`pending` | `paid` | `failed`)
