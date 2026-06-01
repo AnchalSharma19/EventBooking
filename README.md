@@ -1,70 +1,187 @@
-# Getting Started with Create React App
+# EventBooking
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A full-stack MERN (MongoDB, Express, React, Node.js) application for browsing and booking events with role-based access, JWT authentication, PayPal payments, and email notifications.
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## Tech Stack
 
-### `npm start`
+| Layer     | Technology                          |
+|-----------|-------------------------------------|
+| Frontend  | React 19, React Router, Bootstrap 5, Stripe |
+| Backend   | Node.js, Express 5, Mongoose        |
+| Database  | MongoDB                             |
+| Auth      | JWT (jsonwebtoken), bcryptjs        |
+| Payments  | PayPal SDK (sandbox)                |
+| Email     | Nodemailer (Gmail)                  |
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Prerequisites
 
-### `npm test`
+- [Node.js](https://nodejs.org/) v18 or higher
+- [npm](https://www.npmjs.com/) v9 or higher
+- A running [MongoDB](https://www.mongodb.com/) instance (local or [MongoDB Atlas](https://www.mongodb.com/atlas))
+- A [PayPal Developer](https://developer.paypal.com/) account (for sandbox credentials)
+- A Gmail account with an [App Password](https://support.google.com/accounts/answer/185833) enabled
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## Project Structure
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+EventBooking/
+├── backend/           # Express API server
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── utils/
+│   └── server.js
+├── frontend-app/      # React client
+│   └── src/
+│       ├── pages/
+│       ├── App.js
+│       └── axiosConfig.js
+└── package.json
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Setup
 
-### `npm run eject`
+### 1. Clone the repository
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+git clone <your-repo-url>
+cd EventBooking
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 2. Configure the backend environment
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Create a `.env` file inside the `backend/` directory:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+touch backend/.env
+```
 
-## Learn More
+Add the following variables to `backend/.env`:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```env
+PORT=5000
+MONGO_URI=mongodb://localhost:27017/eventbooking
+JWT_SECRET=your_jwt_secret_key
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+EMAIL_USER=your_gmail_address@gmail.com
+EMAIL_PASS=your_gmail_app_password
 
-### Code Splitting
+PAYPAL_CLIENT_ID=your_paypal_sandbox_client_id
+PAYPAL_CLIENT_SECRET=your_paypal_sandbox_client_secret
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+| Variable               | Description                                                                 |
+|------------------------|-----------------------------------------------------------------------------|
+| `PORT`                 | Port the backend server listens on (default: `5000`)                        |
+| `MONGO_URI`            | MongoDB connection string                                                   |
+| `JWT_SECRET`           | Secret key used to sign JWT tokens — use a long random string               |
+| `EMAIL_USER`           | Gmail address used to send notification emails                              |
+| `EMAIL_PASS`           | [Gmail App Password](https://support.google.com/accounts/answer/185833) (not your regular password) |
+| `PAYPAL_CLIENT_ID`     | PayPal sandbox client ID from the developer dashboard                       |
+| `PAYPAL_CLIENT_SECRET` | PayPal sandbox client secret                                                |
 
-### Analyzing the Bundle Size
+### 3. Install dependencies
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Install backend and frontend dependencies separately:
 
-### Making a Progressive Web App
+```bash
+# Backend
+cd backend
+npm install
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+# Frontend
+cd ../frontend-app
+npm install
+```
 
-### Advanced Configuration
+### 4. Run the application
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Open two terminal windows and run each service:
 
-### Deployment
+**Terminal 1 — Backend (with auto-reload):**
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+```bash
+cd backend
+npm run dev
+```
 
-### `npm run build` fails to minify
+The API will be available at `http://localhost:5000`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+**Terminal 2 — Frontend:**
+
+```bash
+cd frontend-app
+npm start
+```
+
+The app will open at `http://localhost:3000`.
+
+---
+
+## API Overview
+
+| Method | Endpoint                             | Description              | Auth Required |
+|--------|--------------------------------------|--------------------------|---------------|
+| POST   | `/api/auth/register`                 | Register a new user      | No            |
+| POST   | `/api/auth/login`                    | Login and receive JWT    | No            |
+| GET    | `/api/events`                        | List all events          | No            |
+| POST   | `/api/events`                        | Create an event          | Admin         |
+| PUT    | `/api/events/:id`                    | Update an event          | Admin         |
+| DELETE | `/api/events/:id`                    | Delete an event          | Admin         |
+| POST   | `/api/bookings`                      | Book an event            | User          |
+| GET    | `/api/bookings/my`                   | View your bookings       | User          |
+| GET    | `/api/bookings`                      | View all bookings        | Admin         |
+| POST   | `/api/paypal/create-order`           | Create PayPal order      | User          |
+| POST   | `/api/paypal/capture-order/:orderID` | Capture PayPal payment   | User          |
+
+---
+
+## User Roles
+
+| Role       | Capabilities                                                              |
+|------------|---------------------------------------------------------------------------|
+| `consumer` | Browse events, book tickets, view own bookings                            |
+| `admin`    | All consumer capabilities + create/edit/delete events, view all bookings |
+
+To create an admin user, register normally and then update the `role` field in MongoDB directly:
+
+```js
+db.users.updateOne({ email: "admin@example.com" }, { $set: { role: "admin" } })
+```
+
+---
+
+## Building for Production
+
+```bash
+# Build the React frontend
+cd frontend-app
+npm run build
+```
+
+The optimized build will be output to `frontend-app/build/`. Serve it with a static file server or configure Express to serve it from the backend.
+
+---
+
+## Troubleshooting
+
+**MongoDB connection fails**
+- Ensure MongoDB is running locally (`mongod`) or that your Atlas connection string is correct and the IP is whitelisted.
+
+**JWT errors / 401 responses**
+- Check that `JWT_SECRET` is set in `backend/.env`. Clearing `localStorage` in the browser and logging in again usually resolves stale token issues.
+
+**Emails not sending**
+- Confirm that [2-Step Verification](https://myaccount.google.com/security) is enabled on your Gmail account and that you are using an App Password, not your regular account password.
+
+**PayPal errors**
+- Ensure you are using sandbox credentials from [developer.paypal.com](https://developer.paypal.com/). Live credentials will not work in sandbox mode.
